@@ -244,7 +244,61 @@ curl -fsSL https://raw.githubusercontent.com/tmcfarlane/oh-my-cursor/main/instal
 curl -fsSL https://raw.githubusercontent.com/tmcfarlane/oh-my-cursor/main/install.sh | bash -s -- --enable
 ```
 
-> **Hacking on the repo locally?** Clone it, then run `bash install.sh` to install from source.
+### Windows (PowerShell)
+
+**One-liner (remote install):**
+
+Use `[scriptblock]::Create` to pass arguments when downloading and running remotely.
+`irm ... | iex --project` does **not** work — PowerShell passes `--project` to `Invoke-Expression`, not to the script.
+
+```powershell
+# [Default] Install to user scope (%USERPROFILE%\.cursor\)
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/tmcfarlane/oh-my-cursor/main/install.ps1')))
+
+# Install to this project only (.\.cursor\)
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/tmcfarlane/oh-my-cursor/main/install.ps1'))) --project
+
+# Also install for Claude Code and Codex compatibility
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/tmcfarlane/oh-my-cursor/main/install.ps1'))) --claude --codex
+
+# Skip skills installation
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/tmcfarlane/oh-my-cursor/main/install.ps1'))) --no-skills
+
+# Preview changes
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/tmcfarlane/oh-my-cursor/main/install.ps1'))) --dry-run
+
+# Update/overwrite existing files
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/tmcfarlane/oh-my-cursor/main/install.ps1'))) --force
+
+# Uninstall
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/tmcfarlane/oh-my-cursor/main/install.ps1'))) --uninstall
+```
+
+Alternatively, pass arguments via environment variable (works with `irm | iex`):
+
+```powershell
+$env:OH_MY_CURSOR_ARGS = '--project'; irm 'https://raw.githubusercontent.com/tmcfarlane/oh-my-cursor/main/install.ps1' | iex
+```
+
+**From a local clone** (run from the repo root or after downloading `install.ps1`):
+
+```powershell
+# Run with default options (user scope: %USERPROFILE%\.cursor\)
+.\install.ps1
+
+# Install to this project only (.\.cursor\)
+.\install.ps1 --project
+
+# Preview changes
+.\install.ps1 --dry-run
+
+# Overwrite existing files
+.\install.ps1 --force
+```
+
+If execution is restricted, run: `powershell -ExecutionPolicy Bypass -File install.ps1 [OPTIONS]`. The same options as the Unix installer are supported (`--user`, `--project`, `--force`, `--dry-run`, `--uninstall`, `--disable`, `--enable`, `--no-skills`, `--claude`, `--codex`, `-h`, `--version`).
+
+> **Hacking on the repo locally?** Clone it, then run `bash install.sh` (Unix) or `.\install.ps1` (Windows) to install from source.
 
 **Enable / disable:** Use `--disable` to turn off Team Avatar orchestration (the root thread can use normal tools again). Agents and slash commands remain installed; use `--enable` to turn orchestration back on. Use `--project` with `--disable` or `--enable` to toggle project scope only.
 
